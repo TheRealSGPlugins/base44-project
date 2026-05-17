@@ -1,0 +1,22 @@
+{
+  "name": "ChatThread",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Thread title or summary"
+    },
+    "last_message_preview": {
+      "type": "string",
+      "description": "Preview of last message"
+    },
+    "message_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of messages in thread"
+    }
+  },
+  "required": [
+    "title"
+  ]
+}

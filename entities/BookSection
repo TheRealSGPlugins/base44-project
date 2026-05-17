@@ -1,0 +1,50 @@
+{
+  "name": "BookSection",
+  "type": "object",
+  "properties": {
+    "book_id": {
+      "type": "string",
+      "description": "Reference to the book"
+    },
+    "book_title": {
+      "type": "string",
+      "description": "Title of the book for quick access"
+    },
+    "chapter_number": {
+      "type": "number",
+      "description": "Chapter number"
+    },
+    "chapter_title": {
+      "type": "string",
+      "description": "Title of the chapter"
+    },
+    "section_number": {
+      "type": "number",
+      "description": "Section or verse number within chapter"
+    },
+    "content": {
+      "type": "string",
+      "description": "The text content of this section"
+    },
+    "tradition": {
+      "type": "string",
+      "description": "Religious tradition"
+    },
+    "language": {
+      "type": "string",
+      "description": "Language of this content"
+    },
+    "verse_reference": {
+      "type": "string",
+      "description": "Human-readable reference like Chapter 1, Verse 1"
+    },
+    "order_index": {
+      "type": "number",
+      "description": "Ordering index for display"
+    }
+  },
+  "required": [
+    "book_id",
+    "content"
+  ]
+}

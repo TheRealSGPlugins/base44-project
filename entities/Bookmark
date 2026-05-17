@@ -1,0 +1,34 @@
+{
+  "name": "Bookmark",
+  "type": "object",
+  "properties": {
+    "section_id": {
+      "type": "string",
+      "description": "Reference to book section"
+    },
+    "book_id": {
+      "type": "string",
+      "description": "Reference to the book"
+    },
+    "book_title": {
+      "type": "string",
+      "description": "Book title for display"
+    },
+    "verse_reference": {
+      "type": "string",
+      "description": "Human-readable reference"
+    },
+    "quote_preview": {
+      "type": "string",
+      "description": "Short preview of bookmarked text"
+    },
+    "note": {
+      "type": "string",
+      "description": "User note on this bookmark"
+    }
+  },
+  "required": [
+    "section_id",
+    "book_title"
+  ]
+}

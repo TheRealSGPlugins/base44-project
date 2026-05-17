@@ -1,0 +1,64 @@
+{
+  "name": "ChatMessage",
+  "type": "object",
+  "properties": {
+    "thread_id": {
+      "type": "string",
+      "description": "Reference to chat thread"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "user",
+        "assistant"
+      ],
+      "description": "Who sent the message"
+    },
+    "content": {
+      "type": "string",
+      "description": "Message text content"
+    },
+    "citations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "book_title": {
+            "type": "string"
+          },
+          "chapter": {
+            "type": "string"
+          },
+          "verse": {
+            "type": "string"
+          },
+          "quote": {
+            "type": "string"
+          },
+          "tradition": {
+            "type": "string"
+          },
+          "section_id": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Citations from archive"
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "high",
+        "medium",
+        "low",
+        "insufficient"
+      ],
+      "description": "Confidence level of the answer"
+    }
+  },
+  "required": [
+    "thread_id",
+    "role",
+    "content"
+  ]
+}

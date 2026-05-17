@@ -1,0 +1,87 @@
+{
+  "name": "Book",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Title of the book"
+    },
+    "tradition": {
+      "type": "string",
+      "enum": [
+        "hinduism",
+        "christianity",
+        "islam",
+        "buddhism",
+        "taoism",
+        "judaism",
+        "sikhism",
+        "zoroastrianism",
+        "jainism",
+        "bahai",
+        "philosophy",
+        "mysticism",
+        "other"
+      ],
+      "description": "Religious or philosophical tradition"
+    },
+    "author": {
+      "type": "string",
+      "description": "Author or attributed author"
+    },
+    "original_language": {
+      "type": "string",
+      "description": "Original language of the text"
+    },
+    "translator": {
+      "type": "string",
+      "description": "Translator if applicable"
+    },
+    "description": {
+      "type": "string",
+      "description": "Short description of the book"
+    },
+    "cover_image_url": {
+      "type": "string",
+      "description": "URL to cover image"
+    },
+    "is_public_domain": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the text is public domain"
+    },
+    "source_url": {
+      "type": "string",
+      "description": "Source URL for attribution"
+    },
+    "total_chapters": {
+      "type": "number",
+      "description": "Total number of chapters"
+    },
+    "available_languages": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Languages this book is available in"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "scripture",
+        "commentary",
+        "poetry",
+        "philosophy",
+        "prayer",
+        "meditation",
+        "history",
+        "mysticism"
+      ],
+      "description": "Category of the text"
+    }
+  },
+  "required": [
+    "title",
+    "tradition"
+  ]
+}
