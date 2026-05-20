@@ -1,5 +1,5 @@
 const R2_PUBLIC_URL = 'https://pub-ccb8f8828bb74d5c900406b84e2dea36.r2.dev';
-const MANIFEST_URL = `${R2_PUBLIC_URL}/books/manifest.json`;
+const MANIFEST_URLS = ['/books/manifest.json', `${R2_PUBLIC_URL}/books/manifest.json`];
 
 const apiRequest = async (path, { method = 'GET', body, token, headers = {} } = {}) => {
   const response = await fetch(`/api${path}`, {
@@ -27,15 +27,21 @@ const apiRequest = async (path, { method = 'GET', body, token, headers = {} } = 
 let manifestCache = null;
 const getManifest = async () => {
   if (manifestCache) return manifestCache;
-  try {
-    const res = await fetch(MANIFEST_URL);
-    if (!res.ok) throw new Error('Manifest not found');
-    manifestCache = await res.json();
-    return manifestCache;
-  } catch (e) {
-    console.warn('Could not fetch manifest, using fallback:', e);
-    return { books: [] };
+  for (const manifestUrl of MANIFEST_URLS) {
+    try {
+      const res = await fetch(manifestUrl);
+      if (!res.ok) {
+        continue;
+      }
+      manifestCache = await res.json();
+      return manifestCache;
+    } catch (e) {
+      console.warn(`Could not fetch manifest from ${manifestUrl}:`, e);
+    }
   }
+
+  console.warn('Could not fetch manifest, using fallback:');
+  return { books: [] };
 };
 
 export const base44 = {

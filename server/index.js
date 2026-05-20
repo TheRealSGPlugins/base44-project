@@ -6,14 +6,12 @@ import { createAuthStore } from './auth-store.js';
 import { createCloudflareD1AuthStore, hasCloudflareD1Config } from './cloudflare-d1-auth-store.js';
 import { createSmtpMailer, hasSmtpConfig } from './smtp-mailer.js';
 import { createResendMailer } from './resend-mailer.js';
-import { verifyAdminCode } from './admin-access.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 const distDir = path.join(rootDir, 'dist');
 const appOrigin = process.env.APP_ORIGIN || process.env.RENDER_EXTERNAL_URL || '';
-const adminAccessCode = process.env.ADMIN_ACCESS_CODE?.trim() || '271828';
 const smtpMailer = hasSmtpConfig()
   ? createSmtpMailer({
       host: process.env.SMTP_HOST,
@@ -111,17 +109,6 @@ app.post('/api/auth/reset-password-request', wrap(async (req, res) => {
 
 app.post('/api/auth/reset-password', wrap(async (req, res) => {
   res.json(await store.resetPassword(req.body || {}));
-}));
-
-app.post('/api/admin/verify', wrap(async (req, res) => {
-  if (!verifyAdminCode(req.body?.code, adminAccessCode)) {
-    const error = new Error('Invalid admin code');
-    error.status = 401;
-    error.code = 'INVALID_ADMIN_CODE';
-    throw error;
-  }
-
-  res.json({ success: true });
 }));
 
 if (existsSync(distDir)) {

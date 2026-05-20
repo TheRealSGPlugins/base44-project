@@ -30,5 +30,3 @@ services:
         sync: false
       - key: SMTP_FROM
         sync: false
-      - key: ADMIN_ACCESS_CODE
-        sync: false
