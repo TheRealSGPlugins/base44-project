@@ -1,5 +1,15 @@
+import { createClient } from '@base44/sdk';
+import { appParams } from '@/lib/app-params';
+
 const R2_PUBLIC_URL = 'https://pub-ccb8f8828bb74d5c900406b84e2dea36.r2.dev';
 const MANIFEST_URL = `${R2_PUBLIC_URL}/books/manifest.json`;
+
+const appId = appParams.appId ?? import.meta.env.VITE_BASE44_APP_ID;
+const appBaseUrl = appParams.appBaseUrl ?? import.meta.env.VITE_BASE44_APP_BASE_URL;
+
+if (!appId) {
+  throw new Error('Missing VITE_BASE44_APP_ID');
+}
 
 // Fetch and cache the manifest
 let manifestCache = null;
@@ -16,36 +26,14 @@ const getManifest = async () => {
   }
 };
 
+const sdkBase44 = createClient({
+  appId,
+  ...(appBaseUrl ? { serverUrl: appBaseUrl, appBaseUrl } : {}),
+  ...(appParams.token ? { token: appParams.token } : {}),
+});
+
 export const base44 = {
-  auth: {
-    loginViaEmailPassword: async (email, password) => {
-      if (password === 'password' || password === 'demo') {
-        localStorage.setItem('base44_access_token', 'demo_token');
-        return {
-          access_token: 'demo_token',
-          user: { id: 'demo_user', email, name: 'Demo User' }
-        };
-      }
-      throw new Error('Invalid email or password');
-    },
-    me: async () => {
-      const token = localStorage.getItem('base44_access_token');
-      if (token) return { id: 'demo_user', email: 'demo@example.com', name: 'Demo User' };
-      throw { status: 401, message: 'Not authenticated' };
-    },
-    loginWithProvider: async (...args) => { localStorage.setItem('base44_access_token', 'demo_token'); },
-    register: async () => ({ success: true }),
-    verifyOtp: async () => ({ access_token: 'demo_token' }),
-    resendOtp: async () => ({ success: true }),
-    resetPasswordRequest: async () => ({ success: true }),
-    resetPassword: async () => ({ success: true }),
-    logout: (redirectUrl) => {
-      localStorage.removeItem('base44_access_token');
-      if (redirectUrl) window.location.href = redirectUrl;
-    },
-    redirectToLogin: (redirectUrl) => { window.location.href = `/login?redirect=${encodeURIComponent(redirectUrl)}`; },
-    setToken: (token) => { localStorage.setItem('base44_access_token', token); },
-  },
+  auth: sdkBase44.auth,
   entities: {
     Book: {
       list: async () => {
