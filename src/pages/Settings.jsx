@@ -1,18 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, LogOut, BookOpen, Shield, Sun, Moon, Languages, Database } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { ArrowLeft, BookOpen, Shield, Sun, Moon, Languages, Database } from 'lucide-react';
 import PageContainer from '@/components/ui/PageContainer';
 import GoldHeading from '@/components/ui/GoldHeading';
 import GlassCard from '@/components/ui/GlassCard';
-import EmeraldButton from '@/components/ui/EmeraldButton';
 import { useTheme } from '@/lib/ThemeContext';
 import { useLanguage } from '@/lib/LanguageContext';
 
 export default function Settings() {
-  const handleLogout = () => {
-    base44.auth.logout('/');
-  };
   const { theme, toggleTheme } = useTheme();
   const { language, changeLanguage, languages } = useLanguage();
   const [showLangPicker, setShowLangPicker] = useState(false);
@@ -123,16 +118,6 @@ export default function Settings() {
           </Link>
         </GlassCard>
 
-        <div className="pt-4">
-          <EmeraldButton
-            variant="outline"
-            className="w-full border-destructive/30 text-destructive hover:bg-destructive/10"
-            onClick={handleLogout}
-          >
-            <LogOut className="w-4 h-4" />
-            Sign Out
-          </EmeraldButton>
-        </div>
       </div>
     </PageContainer>
   );

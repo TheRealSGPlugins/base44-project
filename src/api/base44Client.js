@@ -1,20 +1,5 @@
 const R2_PUBLIC_URL = 'https://pub-ccb8f8828bb74d5c900406b84e2dea36.r2.dev';
 const MANIFEST_URL = `${R2_PUBLIC_URL}/books/manifest.json`;
-const TOKEN_KEY = 'base44_access_token';
-
-const getStorage = () => (typeof window !== 'undefined' ? window.localStorage : null);
-const getStoredToken = () => getStorage()?.getItem(TOKEN_KEY) ?? null;
-const setStoredToken = (token) => {
-  const storage = getStorage();
-  if (!storage) {
-    return;
-  }
-  if (token) {
-    storage.setItem(TOKEN_KEY, token);
-  } else {
-    storage.removeItem(TOKEN_KEY);
-  }
-};
 
 const apiRequest = async (path, { method = 'GET', body, token, headers = {} } = {}) => {
   const response = await fetch(`/api${path}`, {
@@ -53,87 +38,7 @@ const getManifest = async () => {
   }
 };
 
-const auth = {
-  async me() {
-    return apiRequest('/auth/me', { token: getStoredToken() });
-  },
-  async loginViaEmailPassword(email, password) {
-    const result = await apiRequest('/auth/login', {
-      method: 'POST',
-      body: { email, password },
-    });
-    if (result.access_token) {
-      setStoredToken(result.access_token);
-    }
-    return result;
-  },
-  async register({ email, password }) {
-    return apiRequest('/auth/register', {
-      method: 'POST',
-      body: { email, password },
-    });
-  },
-  async verifyOtp({ email, otpCode }) {
-    const result = await apiRequest('/auth/verify-otp', {
-      method: 'POST',
-      body: { email, otpCode },
-    });
-    if (result.access_token) {
-      setStoredToken(result.access_token);
-    }
-    return result;
-  },
-  async resendOtp(email) {
-    return apiRequest('/auth/resend-otp', {
-      method: 'POST',
-      body: { email },
-    });
-  },
-  async resetPasswordRequest(email) {
-    return apiRequest('/auth/reset-password-request', {
-      method: 'POST',
-      body: { email },
-    });
-  },
-  async resetPassword({ resetToken, newPassword }) {
-    return apiRequest('/auth/reset-password', {
-      method: 'POST',
-      body: { resetToken, newPassword },
-    });
-  },
-  async logout(redirectUrl = '/') {
-    const token = getStoredToken();
-    if (token) {
-      try {
-        await apiRequest('/auth/logout', {
-          method: 'POST',
-          token,
-        });
-      } catch {
-        // Ignore logout cleanup failures.
-      }
-    }
-    setStoredToken(null);
-    if (typeof window !== 'undefined' && redirectUrl) {
-      window.location.href = redirectUrl;
-    }
-  },
-  setToken(token, saveToStorage = true) {
-    if (saveToStorage) {
-      setStoredToken(token);
-    }
-    return token;
-  },
-  loginWithProvider() {
-    if (typeof window !== 'undefined') {
-      console.warn('Provider login is not configured.');
-    }
-    return Promise.resolve();
-  },
-};
-
 export const base44 = {
-  auth,
   entities: {
     Book: {
       list: async () => {

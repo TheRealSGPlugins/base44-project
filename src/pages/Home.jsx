@@ -37,7 +37,7 @@ const menuItems = [
   {
     icon: Settings,
     title: 'Settings',
-    subtitle: 'Preferences & account',
+    subtitle: 'Preferences',
     to: '/settings',
     accentColor: 'bg-muted'
   }

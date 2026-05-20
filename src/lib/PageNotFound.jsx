@@ -1,23 +1,9 @@
-import { useLocation } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
-
-export default function PageNotFound({}) {
+export default function PageNotFound() {
     const location = useLocation();
     const pageName = location.pathname.substring(1);
-
-    const { data: authData, isFetched } = useQuery({
-        queryKey: ['user'],
-        queryFn: async () => {
-            try {
-                const user = await base44.auth.me();
-                return { user, isAuthenticated: true };
-            } catch (error) {
-                return { user: null, isAuthenticated: false };
-            }
-        }
-    });
     
     return (
         <div className="min-h-screen flex items-center justify-center p-6 bg-background">
@@ -37,21 +23,13 @@ export default function PageNotFound({}) {
                         </p>
                     </div>
                     
-                    {isFetched && authData.isAuthenticated && authData.user?.role === 'admin' && (
-                        <div className="mt-8 p-4 bg-card rounded-xl border border-border">
-                            <p className="text-sm text-muted-foreground">
-                                Admin: This page may not be implemented yet.
-                            </p>
-                        </div>
-                    )}
-                    
                     <div className="pt-6">
-                        <button 
-                            onClick={() => window.location.href = '/'} 
+                        <Link
+                            to="/"
                             className="inline-flex items-center px-6 py-3 text-sm font-medium text-accent-foreground bg-accent rounded-xl hover:bg-accent/80 transition-colors"
                         >
                             Return Home
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </div>

@@ -26,9 +26,11 @@ SMTP_SECURE=
 SMTP_USER=
 SMTP_PASSWORD=
 SMTP_FROM=
+ADMIN_ACCESS_CODE=
 ```
 
 For a personal email account, set the `SMTP_*` values instead of the Resend ones. `SMTP_FROM` can usually just be your email address.
+If `ADMIN_ACCESS_CODE` is unset, the app falls back to `271828` for `/archive-admin`.
 
 ## Build
 
