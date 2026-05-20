@@ -10,23 +10,32 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 const distDir = path.join(rootDir, 'dist');
+const appOrigin = process.env.APP_ORIGIN || process.env.RENDER_EXTERNAL_URL || '';
 const resendMailer = createResendMailer({
   apiKey: process.env.RESEND_API_KEY,
   fromEmail: process.env.RESEND_FROM_EMAIL,
-  appOrigin: process.env.APP_ORIGIN || process.env.RENDER_EXTERNAL_URL || '',
+  appOrigin,
 });
 
 const store = hasCloudflareD1Config()
   ? createCloudflareD1AuthStore({
-      appOrigin: process.env.APP_ORIGIN || process.env.RENDER_EXTERNAL_URL || '',
+      appOrigin,
       sendPasswordResetEmail: resendMailer.sendPasswordResetEmail,
     })
-  : createAuthStore({ dataFile: path.join(rootDir, 'data', 'auth-store.json') });
+  : createAuthStore({
+      dataFile: path.join(rootDir, 'data', 'auth-store.json'),
+      appOrigin,
+      sendPasswordResetEmail: resendMailer.sendPasswordResetEmail,
+    });
 
 await store.init?.();
 
-if (hasCloudflareD1Config() && !resendMailer.isConfigured) {
-  console.warn('Resend mailer is not fully configured. Password reset emails will fail until RESEND_API_KEY, RESEND_FROM_EMAIL, and APP_ORIGIN are set.');
+console.info(
+  `Auth store: ${hasCloudflareD1Config() ? 'cloudflare-d1' : 'local-json'}; password reset mailer: ${resendMailer.isConfigured ? 'resend' : 'not configured'}`
+);
+
+if (!resendMailer.isConfigured) {
+  console.warn('Resend mailer is not fully configured. Password reset emails will fail until RESEND_API_KEY and APP_ORIGIN are set.');
 }
 
 const app = express();

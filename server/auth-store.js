@@ -57,7 +57,7 @@ const loadData = (filePath) => {
   }
 };
 
-export function createAuthStore({ dataFile } = {}) {
+export function createAuthStore({ dataFile, sendPasswordResetEmail = null, appOrigin = '' } = {}) {
   const filePath = dataFile || path.resolve(process.cwd(), 'data', 'auth-store.json');
   mkdirSync(path.dirname(filePath), { recursive: true });
   let data = loadData(filePath);
@@ -229,7 +229,7 @@ export function createAuthStore({ dataFile } = {}) {
       return { success: true };
     },
 
-    requestPasswordReset(email) {
+    async requestPasswordReset(email) {
       const normalizedEmail = normalizeEmail(email);
       const user = findUserByEmail(normalizedEmail);
       if (!user) {
@@ -246,10 +246,23 @@ export function createAuthStore({ dataFile } = {}) {
       });
       save();
 
-      return {
-        success: true,
-        resetToken,
-      };
+      try {
+        if (typeof sendPasswordResetEmail === 'function') {
+          await sendPasswordResetEmail({
+            toEmail: normalizedEmail,
+            resetToken,
+            appOrigin,
+          });
+        } else {
+          throw createError('Password reset email is not configured', 503, 'MAILER_NOT_CONFIGURED');
+        }
+      } catch (error) {
+        removeResetToken(resetToken);
+        save();
+        throw error;
+      }
+
+      return { success: true };
     },
 
     resetPassword({ resetToken, newPassword }) {

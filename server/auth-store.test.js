@@ -28,3 +28,23 @@ test('register verify and login create a usable session', () => {
 
   rmSync(dir, { recursive: true, force: true });
 });
+
+test('password reset request sends a reset email when configured', async () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'base44-auth-'));
+  const dataFile = path.join(dir, 'auth.json');
+  const sent = [];
+  const store = createAuthStore({
+    dataFile,
+    appOrigin: 'https://base44-project-1.onrender.com',
+    sendPasswordResetEmail: async (payload) => sent.push(payload),
+  });
+
+  store.register({ email: 'user@example.com', password: 'secret123' });
+  const result = await store.requestPasswordReset('user@example.com');
+
+  assert.deepEqual(result, { success: true });
+  assert.equal(sent.length, 1);
+  assert.equal(sent[0].toEmail, 'user@example.com');
+
+  rmSync(dir, { recursive: true, force: true });
+});

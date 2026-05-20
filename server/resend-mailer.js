@@ -40,13 +40,14 @@ export function buildPasswordResetEmail({ fromEmail, appOrigin, toEmail, resetTo
 }
 
 export function createResendMailer({ apiKey, fromEmail, appOrigin, fetchImpl = fetch } = {}) {
-  const isConfigured = Boolean(apiKey && fromEmail && appOrigin);
+  const resolvedFromEmail = fromEmail || 'onboarding@resend.dev';
+  const isConfigured = Boolean(apiKey && appOrigin);
 
   return {
     isConfigured,
     async sendPasswordResetEmail({ toEmail, resetToken }) {
       const email = buildPasswordResetEmail({
-        fromEmail,
+        fromEmail: resolvedFromEmail,
         appOrigin,
         toEmail,
         resetToken,
