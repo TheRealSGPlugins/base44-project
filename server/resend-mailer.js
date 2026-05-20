@@ -68,14 +68,13 @@ export function buildVerificationEmail({ fromEmail, appOrigin, toEmail, otpCode 
 }
 
 export function createResendMailer({ apiKey, fromEmail, appOrigin, fetchImpl = fetch } = {}) {
-  const resolvedFromEmail = fromEmail || 'onboarding@resend.dev';
-  const isConfigured = Boolean(apiKey && appOrigin);
+  const isConfigured = Boolean(apiKey && fromEmail && appOrigin);
 
   return {
     isConfigured,
     async sendVerificationEmail({ toEmail, otpCode }) {
       const email = buildVerificationEmail({
-        fromEmail: resolvedFromEmail,
+        fromEmail,
         appOrigin,
         toEmail,
         otpCode,
@@ -107,7 +106,7 @@ export function createResendMailer({ apiKey, fromEmail, appOrigin, fetchImpl = f
     },
     async sendPasswordResetEmail({ toEmail, resetToken }) {
       const email = buildPasswordResetEmail({
-        fromEmail: resolvedFromEmail,
+        fromEmail,
         appOrigin,
         toEmail,
         resetToken,

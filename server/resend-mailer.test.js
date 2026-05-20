@@ -26,23 +26,20 @@ test('builds and sends a password reset email', async () => {
   assert.match(body.html, /\/reset-password\?token=token-123/);
 });
 
-test('defaults to the onboarding sender when none is provided', async () => {
-  let body;
+test('requires an explicit sender', async () => {
   const mailer = createResendMailer({
     apiKey: 're_test',
     appOrigin: 'https://base44-project-1.onrender.com',
-    fetchImpl: async (_url, options) => {
-      body = JSON.parse(options.body);
-      return { ok: true, json: async () => ({ id: 'email_123' }) };
-    },
+    fetchImpl: async () => ({ ok: true, json: async () => ({ id: 'email_123' }) }),
   });
 
-  await mailer.sendPasswordResetEmail({
-    toEmail: 'user@example.com',
-    resetToken: 'token-123',
-  });
-
-  assert.equal(body.from, 'onboarding@resend.dev');
+  await assert.rejects(
+    mailer.sendPasswordResetEmail({
+      toEmail: 'user@example.com',
+      resetToken: 'token-123',
+    }),
+    /RESEND_FROM_EMAIL is required/
+  );
 });
 
 test('builds and sends a verification email', async () => {

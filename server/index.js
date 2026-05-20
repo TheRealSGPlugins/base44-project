@@ -37,7 +37,7 @@ console.info(
 );
 
 if (!resendMailer.isConfigured) {
-  console.warn('Resend mailer is not fully configured. Verification and reset emails will fail until RESEND_API_KEY and APP_ORIGIN are set.');
+  console.warn('Resend mailer is not fully configured. Verification and reset emails will fail until RESEND_API_KEY, RESEND_FROM_EMAIL, and APP_ORIGIN are set.');
 }
 
 const app = express();
