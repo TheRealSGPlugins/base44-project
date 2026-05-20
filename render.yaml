@@ -1,16 +1,7 @@
 services:
   - type: web
-    name: base44-app
-    runtime: static
+    name: divine-bratan-archive
+    runtime: node
     repo: https://github.com/TheRealSGPlugins/base44-project
     buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    envVars:
-      - key: VITE_BASE44_APP_ID
-        sync: false
-      - key: VITE_BASE44_APP_BASE_URL
-        sync: false
+    startCommand: npm start
