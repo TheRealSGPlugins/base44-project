@@ -26,7 +26,7 @@ export default function Library() {
 
   const { data: books = [], isLoading } = useQuery({
     queryKey: ['books'],
-    queryFn: () => base44.entities.Book.list('title', 100),
+    queryFn: () => base44.entities.Book.list('title'),
   });
 
   const filteredBooks = books.filter(book => {
