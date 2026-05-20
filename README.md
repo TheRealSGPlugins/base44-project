@@ -20,7 +20,15 @@ CLOUDFLARE_API_TOKEN=
 RESEND_API_KEY=
 RESEND_FROM_EMAIL=
 APP_ORIGIN=
+SMTP_HOST=
+SMTP_PORT=
+SMTP_SECURE=
+SMTP_USER=
+SMTP_PASSWORD=
+SMTP_FROM=
 ```
+
+For a personal email account, set the `SMTP_*` values instead of the Resend ones. `SMTP_FROM` can usually just be your email address.
 
 ## Build
 

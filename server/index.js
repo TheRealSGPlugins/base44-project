@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createAuthStore } from './auth-store.js';
 import { createCloudflareD1AuthStore, hasCloudflareD1Config } from './cloudflare-d1-auth-store.js';
+import { createSmtpMailer, hasSmtpConfig } from './smtp-mailer.js';
 import { createResendMailer } from './resend-mailer.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -11,33 +12,45 @@ const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 const distDir = path.join(rootDir, 'dist');
 const appOrigin = process.env.APP_ORIGIN || process.env.RENDER_EXTERNAL_URL || '';
+const smtpMailer = hasSmtpConfig()
+  ? createSmtpMailer({
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      secure: process.env.SMTP_SECURE,
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASSWORD,
+      fromEmail: process.env.SMTP_FROM || process.env.SMTP_USER,
+      appOrigin,
+    })
+  : null;
 const resendMailer = createResendMailer({
   apiKey: process.env.RESEND_API_KEY,
   fromEmail: process.env.RESEND_FROM_EMAIL,
   appOrigin,
 });
+const emailMailer = smtpMailer || resendMailer;
 
 const store = hasCloudflareD1Config()
   ? createCloudflareD1AuthStore({
       appOrigin,
-      sendVerificationEmail: resendMailer.sendVerificationEmail,
-      sendPasswordResetEmail: resendMailer.sendPasswordResetEmail,
+      sendVerificationEmail: emailMailer.sendVerificationEmail,
+      sendPasswordResetEmail: emailMailer.sendPasswordResetEmail,
     })
   : createAuthStore({
       dataFile: path.join(rootDir, 'data', 'auth-store.json'),
       appOrigin,
-      sendVerificationEmail: resendMailer.sendVerificationEmail,
-      sendPasswordResetEmail: resendMailer.sendPasswordResetEmail,
+      sendVerificationEmail: emailMailer.sendVerificationEmail,
+      sendPasswordResetEmail: emailMailer.sendPasswordResetEmail,
     });
 
 await store.init?.();
 
 console.info(
-  `Auth store: ${hasCloudflareD1Config() ? 'cloudflare-d1' : 'local-json'}; email sender: ${resendMailer.isConfigured ? 'resend' : 'not configured'}`
+  `Auth store: ${hasCloudflareD1Config() ? 'cloudflare-d1' : 'local-json'}; email sender: ${smtpMailer ? 'smtp' : resendMailer.isConfigured ? 'resend' : 'not configured'}`
 );
 
-if (!resendMailer.isConfigured) {
-  console.warn('Resend mailer is not fully configured. Verification and reset emails will fail until RESEND_API_KEY, RESEND_FROM_EMAIL, and APP_ORIGIN are set.');
+if (!smtpMailer && !resendMailer.isConfigured) {
+  console.warn('Email is not configured. Set SMTP_HOST/SMTP_USER/SMTP_PASSWORD/APP_ORIGIN for personal email, or RESEND_API_KEY/RESEND_FROM_EMAIL/APP_ORIGIN for Resend.');
 }
 
 const app = express();
