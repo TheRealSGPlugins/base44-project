@@ -17,6 +17,9 @@ Set these on the Render web service for Cloudflare D1 auth storage:
 CLOUDFLARE_ACCOUNT_ID=
 CLOUDFLARE_D1_DATABASE_ID=
 CLOUDFLARE_API_TOKEN=
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=
+APP_ORIGIN=
 ```
 
 ## Build

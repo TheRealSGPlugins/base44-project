@@ -12,3 +12,9 @@ services:
         sync: false
       - key: CLOUDFLARE_API_TOKEN
         sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM_EMAIL
+        sync: false
+      - key: APP_ORIGIN
+        sync: false

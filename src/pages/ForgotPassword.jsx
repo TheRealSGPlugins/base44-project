@@ -11,17 +11,19 @@ export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
     setLoading(true);
     try {
       await base44.auth.resetPasswordRequest(email);
-    } catch {
-      // Always show success regardless
+      setSent(true);
+    } catch (err) {
+      setError(err.message || "Failed to send reset email");
     } finally {
       setLoading(false);
-      setSent(true);
     }
   };
 
@@ -69,6 +71,7 @@ export default function ForgotPassword() {
               "Send reset link"
             )}
           </Button>
+          {error ? <p className="text-sm text-destructive">{error}</p> : null}
         </form>
       )}
     </AuthLayout>

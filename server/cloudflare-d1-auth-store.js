@@ -55,6 +55,14 @@ const getConfig = (overrides = {}) => ({
     process.env.CF_API_TOKEN ??
     process.env.API_TOKEN ??
     '',
+  appOrigin:
+    overrides.appOrigin ??
+    process.env.APP_ORIGIN ??
+    process.env.RENDER_EXTERNAL_URL ??
+    '',
+  sendPasswordResetEmail:
+    overrides.sendPasswordResetEmail ??
+    null,
   fetchImpl: overrides.fetchImpl ?? fetch,
 });
 
@@ -66,7 +74,7 @@ export const hasCloudflareD1Config = (overrides = {}) => {
 };
 
 export function createCloudflareD1AuthStore(overrides = {}) {
-  const { accountId, databaseId, apiToken, fetchImpl } = getConfig(overrides);
+  const { accountId, databaseId, apiToken, appOrigin, sendPasswordResetEmail, fetchImpl } = getConfig(overrides);
   if (!accountId || !databaseId || !apiToken) {
     throw new Error('Missing Cloudflare D1 credentials');
   }
@@ -312,7 +320,22 @@ export function createCloudflareD1AuthStore(overrides = {}) {
         [resetToken, user.id, Date.now() + RESET_TTL_MS, now]
       );
 
-      return { success: true, resetToken };
+      try {
+        if (typeof sendPasswordResetEmail === 'function') {
+          await sendPasswordResetEmail({
+            toEmail: normalizedEmail,
+            resetToken,
+            appOrigin,
+          });
+        } else {
+          throw createError('Password reset email is not configured', 503, 'MAILER_NOT_CONFIGURED');
+        }
+      } catch (error) {
+        await query('DELETE FROM password_resets WHERE reset_token = ?', [resetToken]);
+        throw error;
+      }
+
+      return { success: true };
     },
 
     async resetPassword({ resetToken, newPassword }) {
