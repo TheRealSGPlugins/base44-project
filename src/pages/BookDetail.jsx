@@ -1,8 +1,8 @@
-import React from 'react';
+that theimport React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { ArrowLeft, BookOpen, Globe, User, Tag } from 'lucide-react';
+import { ArrowLeft, BookOpen, Globe, User, Tag, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
 import PageContainer from '@/components/ui/PageContainer';
 import GoldHeading from '@/components/ui/GoldHeading';
@@ -25,6 +25,7 @@ export default function BookDetail() {
   const { data: sections = [], isLoading: sectionsLoading } = useQuery({
     queryKey: ['bookSections', id],
     queryFn: () => base44.entities.BookSection.filter({ book_id: id }, 'order_index', 200),
+    enabled: !book?.r2_url,
   });
 
   // Group sections by chapter
@@ -109,11 +110,29 @@ export default function BookDetail() {
         <h2 className="font-heading text-lg text-foreground/80 mb-3">Chapters</h2>
       </div>
 
-      {sectionsLoading ? (
+      {/* PDF link */}
+      {book?.r2_url && (
+        <div className="mb-6">
+          <a
+            href={book.r2_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 p-4 rounded-xl bg-accent/10 border border-accent/20 hover:bg-accent/20 transition-colors"
+          >
+            <FileText className="w-5 h-5 text-accent" />
+            <div>
+              <p className="text-sm font-medium text-foreground">Open PDF</p>
+              <p className="text-xs text-muted-foreground">View full book in PDF format</p>
+            </div>
+          </a>
+        </div>
+      )}
+
+      {!book?.r2_url && sectionsLoading ? (
         <div className="space-y-2">
           {[1,2,3,4].map(i => <Skeleton key={i} className="h-14 rounded-xl bg-card/40" />)}
         </div>
-      ) : chapterList.length === 0 ? (
+      ) : !book?.r2_url && chapterList.length === 0 ? (
         <div className="text-center py-12">
           <BookOpen className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
           <p className="text-muted-foreground text-sm">No chapters available yet</p>
