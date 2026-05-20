@@ -20,18 +20,11 @@ export const AuthProvider = ({ children }) => {
     try {
       setIsLoadingPublicSettings(true);
       setAuthError(null);
-
-      try {
-        const response = await fetch(import.meta.env.VITE_BASE44_APP_BASE_URL + '/api/public-settings');
-        if (response.ok) {
-          const data = await response.json();
-          setAppPublicSettings(data);
-        }
-      } catch (e) {
-        console.warn('Could not fetch public settings:', e);
-        setAppPublicSettings({ id: import.meta.env.VITE_BASE44_APP_ID, public_settings: {} });
-      }
-
+      
+      // Skip the remote API call - work fully offline
+      setAppPublicSettings({ id: 'local', public_settings: {} });
+      
+      // Check if we have a local token
       const token = localStorage.getItem('base44_access_token');
       if (token) {
         await checkUserAuth();
@@ -61,13 +54,17 @@ export const AuthProvider = ({ children }) => {
       setIsLoadingAuth(false);
       setIsAuthenticated(false);
       setAuthChecked(true);
+      
       if (error.status === 401 || error.status === 403) {
-        setAuthError({ type: 'auth_required', message: 'Authentication required' });
+        setAuthError({
+          type: 'auth_required',
+          message: 'Authentication required'
+        });
       }
     }
   };
 
-  const logout = () => {
+  const logout = (shouldRedirect = true) => {
     setUser(null);
     setIsAuthenticated(false);
     localStorage.removeItem('base44_access_token');
@@ -78,10 +75,18 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{
-      user, isAuthenticated, isLoadingAuth, isLoadingPublicSettings,
-      authError, appPublicSettings, authChecked,
-      logout, navigateToLogin, checkUserAuth, checkAppState
+    <AuthContext.Provider value={{ 
+      user, 
+      isAuthenticated, 
+      isLoadingAuth,
+      isLoadingPublicSettings,
+      authError,
+      appPublicSettings,
+      authChecked,
+      logout,
+      navigateToLogin,
+      checkUserAuth,
+      checkAppState
     }}>
       {children}
     </AuthContext.Provider>
