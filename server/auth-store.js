@@ -57,7 +57,12 @@ const loadData = (filePath) => {
   }
 };
 
-export function createAuthStore({ dataFile, sendPasswordResetEmail = null, appOrigin = '' } = {}) {
+export function createAuthStore({
+  dataFile,
+  sendVerificationEmail = null,
+  sendPasswordResetEmail = null,
+  appOrigin = '',
+} = {}) {
   const filePath = dataFile || path.resolve(process.cwd(), 'data', 'auth-store.json');
   mkdirSync(path.dirname(filePath), { recursive: true });
   let data = loadData(filePath);
@@ -79,7 +84,7 @@ export function createAuthStore({ dataFile, sendPasswordResetEmail = null, appOr
   };
 
   return {
-    register({ email, password }) {
+    async register({ email, password }) {
       const normalizedEmail = normalizeEmail(email);
       if (!normalizedEmail) {
         throw createError('Email is required');
@@ -124,6 +129,14 @@ export function createAuthStore({ dataFile, sendPasswordResetEmail = null, appOr
       });
       save();
 
+      if (typeof sendVerificationEmail === 'function') {
+        await sendVerificationEmail({
+          toEmail: normalizedEmail,
+          otpCode,
+          appOrigin,
+        });
+      }
+
       return {
         user: safeUser(user),
         otpCode,
@@ -163,7 +176,7 @@ export function createAuthStore({ dataFile, sendPasswordResetEmail = null, appOr
       };
     },
 
-    resendOtp(email) {
+    async resendOtp(email) {
       const normalizedEmail = normalizeEmail(email);
       const user = findUserByEmail(normalizedEmail);
       if (!user || user.verified) {
@@ -179,6 +192,14 @@ export function createAuthStore({ dataFile, sendPasswordResetEmail = null, appOr
         createdAt: new Date().toISOString(),
       });
       save();
+
+      if (typeof sendVerificationEmail === 'function') {
+        await sendVerificationEmail({
+          toEmail: normalizedEmail,
+          otpCode,
+          appOrigin,
+        });
+      }
 
       return { success: true, otpCode };
     },

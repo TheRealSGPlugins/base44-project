@@ -20,22 +20,24 @@ const resendMailer = createResendMailer({
 const store = hasCloudflareD1Config()
   ? createCloudflareD1AuthStore({
       appOrigin,
+      sendVerificationEmail: resendMailer.sendVerificationEmail,
       sendPasswordResetEmail: resendMailer.sendPasswordResetEmail,
     })
   : createAuthStore({
       dataFile: path.join(rootDir, 'data', 'auth-store.json'),
       appOrigin,
+      sendVerificationEmail: resendMailer.sendVerificationEmail,
       sendPasswordResetEmail: resendMailer.sendPasswordResetEmail,
     });
 
 await store.init?.();
 
 console.info(
-  `Auth store: ${hasCloudflareD1Config() ? 'cloudflare-d1' : 'local-json'}; password reset mailer: ${resendMailer.isConfigured ? 'resend' : 'not configured'}`
+  `Auth store: ${hasCloudflareD1Config() ? 'cloudflare-d1' : 'local-json'}; email sender: ${resendMailer.isConfigured ? 'resend' : 'not configured'}`
 );
 
 if (!resendMailer.isConfigured) {
-  console.warn('Resend mailer is not fully configured. Password reset emails will fail until RESEND_API_KEY and APP_ORIGIN are set.');
+  console.warn('Resend mailer is not fully configured. Verification and reset emails will fail until RESEND_API_KEY and APP_ORIGIN are set.');
 }
 
 const app = express();

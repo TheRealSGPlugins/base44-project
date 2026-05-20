@@ -63,6 +63,9 @@ const getConfig = (overrides = {}) => ({
   sendPasswordResetEmail:
     overrides.sendPasswordResetEmail ??
     null,
+  sendVerificationEmail:
+    overrides.sendVerificationEmail ??
+    null,
   fetchImpl: overrides.fetchImpl ?? fetch,
 });
 
@@ -74,7 +77,15 @@ export const hasCloudflareD1Config = (overrides = {}) => {
 };
 
 export function createCloudflareD1AuthStore(overrides = {}) {
-  const { accountId, databaseId, apiToken, appOrigin, sendPasswordResetEmail, fetchImpl } = getConfig(overrides);
+  const {
+    accountId,
+    databaseId,
+    apiToken,
+    appOrigin,
+    sendPasswordResetEmail,
+    sendVerificationEmail,
+    fetchImpl,
+  } = getConfig(overrides);
   if (!accountId || !databaseId || !apiToken) {
     throw new Error('Missing Cloudflare D1 credentials');
   }
@@ -203,6 +214,14 @@ export function createCloudflareD1AuthStore(overrides = {}) {
         [normalizedEmail, otpCode, Date.now() + OTP_TTL_MS, now]
       );
 
+      if (typeof sendVerificationEmail === 'function') {
+        await sendVerificationEmail({
+          toEmail: normalizedEmail,
+          otpCode,
+          appOrigin,
+        });
+      }
+
       return {
         user: safeUser({
           id: userId,
@@ -264,6 +283,14 @@ export function createCloudflareD1AuthStore(overrides = {}) {
         'INSERT INTO otp_codes (email, otp_code, expires_at, created_at) VALUES (?, ?, ?, ?)',
         [normalizedEmail, otpCode, Date.now() + OTP_TTL_MS, now]
       );
+
+      if (typeof sendVerificationEmail === 'function') {
+        await sendVerificationEmail({
+          toEmail: normalizedEmail,
+          otpCode,
+          appOrigin,
+        });
+      }
 
       return { success: true, otpCode };
     },

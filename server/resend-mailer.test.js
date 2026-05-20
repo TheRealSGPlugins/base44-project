@@ -44,3 +44,27 @@ test('defaults to the onboarding sender when none is provided', async () => {
 
   assert.equal(body.from, 'onboarding@resend.dev');
 });
+
+test('builds and sends a verification email', async () => {
+  const calls = [];
+  const mailer = createResendMailer({
+    apiKey: 're_test',
+    fromEmail: 'Archive <no-reply@example.com>',
+    appOrigin: 'https://base44-project-1.onrender.com',
+    fetchImpl: async (url, options) => {
+      calls.push({ url, options });
+      return { ok: true, json: async () => ({ id: 'email_456' }) };
+    },
+  });
+
+  await mailer.sendVerificationEmail({
+    toEmail: 'user@example.com',
+    otpCode: '123456',
+  });
+
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, 'https://api.resend.com/emails');
+  const body = JSON.parse(calls[0].options.body);
+  assert.equal(body.to, 'user@example.com');
+  assert.match(body.html, /123456/);
+});

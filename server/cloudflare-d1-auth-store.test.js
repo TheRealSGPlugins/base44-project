@@ -159,3 +159,22 @@ test('password reset request sends a reset email', async () => {
   assert.equal(sent[0].toEmail, 'user@example.com');
   assert.match(sent[0].resetToken, /^[a-f0-9]{64}$/);
 });
+
+test('register sends a verification email', async () => {
+  const sent = [];
+  const store = createCloudflareD1AuthStore({
+    accountId: 'acct',
+    databaseId: 'db',
+    apiToken: 'token',
+    appOrigin: 'https://base44-project-1.onrender.com',
+    sendVerificationEmail: async (payload) => sent.push(payload),
+    fetchImpl: createFakeD1Fetch(),
+  });
+
+  await store.init();
+  await store.register({ email: 'user@example.com', password: 'secret123' });
+
+  assert.equal(sent.length, 1);
+  assert.equal(sent[0].toEmail, 'user@example.com');
+  assert.match(sent[0].otpCode, /^\d{6}$/);
+});
