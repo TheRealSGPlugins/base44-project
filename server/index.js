@@ -3,12 +3,17 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createAuthStore } from './auth-store.js';
+import { createCloudflareD1AuthStore, hasCloudflareD1Config } from './cloudflare-d1-auth-store.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 const distDir = path.join(rootDir, 'dist');
-const store = createAuthStore({ dataFile: path.join(rootDir, 'data', 'auth-store.json') });
+const store = hasCloudflareD1Config()
+  ? createCloudflareD1AuthStore()
+  : createAuthStore({ dataFile: path.join(rootDir, 'data', 'auth-store.json') });
+
+await store.init?.();
 
 const app = express();
 app.use(express.json());
